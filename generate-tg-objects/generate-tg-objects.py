@@ -16,8 +16,21 @@ ns = {
     'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 }
 
-# document -> item
+# document -> item (aggregation)
 # document -> item.metadata
+# transcript -> item (xml as is)
+# transcript -> item.metadata
+
+# TODO title or note contains: documentary or textual
+
+def generate_document_aggregation(document_descriptor, xml_base):
+    doc_transcripts = document_descriptor.xpath('//f:docTranscript/@uri', namespaces=ns)
+    document_item = etree.parse('xml-templates/document-item.xml')
+    for doc_transcript in doc_transcripts:
+        full_doc_transcript_path = xml_base + doc_transcript
+        rdf_description = document_item.xpath('//rdf:Description', namespaces=ns)[0]
+        rdf_description.append(etree.fromstring('<aggregates resource="' + full_doc_transcript_path + '"/>'))
+    return document_item
 
 def generate_objects_for_document(path):
     document_descriptor = etree.parse(path)
@@ -29,16 +42,11 @@ def generate_objects_for_document(path):
     identifier = title
     format = 'application/tei+xml'
     notes = 'A manuscript of the Faust Edition. http://faustedition.de'
-    doc_transcripts = document_descriptor.xpath('//f:docTranscript/@uri', namespaces=ns)
+
     
     # generate textgrid item for document
-
-    document_item = etree.parse('xml-templates/document-item.xml')
-    for doc_transcript in doc_transcripts:
-        full_doc_transcript_path = xml_base + doc_transcript
-        rdf_description = document_item.xpath('//rdf:Description', namespaces=ns)[0]
-        rdf_description.append(etree.fromstring('<aggregates resource="' + full_doc_transcript_path + '"/>'))
-    document_item.write(sys.stdout)
+    document_aggregation = generate_document_aggregation(document_descriptor, xml_base)
+    document_aggregation.write(sys.stdout)
 
 if len(sys.argv) != 2:
     print 'usage: generate-tg-objects.py path-to-document'
