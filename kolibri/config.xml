@@ -19,8 +19,8 @@
 		<!-- EDIT COMMON TEXTGRID VALUES BELOW -->
 		<property>
 			<field>defaultPolicyName</field>
-			<value>aggregation_import</value>
-			<!-- <value>complete_import</value> -->
+			<!--<value>aggregation_import</value>-->
+			<value>complete_import</value>
 			<!-- <value>continue_import</value> -->
 			<!-- <value>delete_import</value> -->
 			<!-- <value>publish_import</value> -->
@@ -30,7 +30,7 @@
 		</property>
 		<property>
 			<field>hotfolderDir</field>
-			<value>./folders/hotfolder-test/</value>
+			<value>./folders/hotfolder</value>
 			<description>The folder containing the data. PLEASE NOTE: There must
 				be ONLY ONE folder in the hotfolder containing all the data. This
 				folder will NOT be ingested, if aggregation import is chosen (in
@@ -38,26 +38,28 @@
 		</property>
 		<property>
 			<field>tgcrudServerUrl</field>
-			<value>http://textgridlab.org/1.0/tgcrud/TGCrudService?wsdl</value>
+			<value>http://textgrid-esx1.gwdg.de/1.0/tgcrud/TGCrudService?wsdl</value>
 			<description>Put in TG-crud instance to use for import. Specifies, if
 				dynamic import (TG-lab) or static import (TG-rep sandbox), and of
 				course if productive or test instance of TG-crud is used.</description>
 		</property>
 		<property>
 			<field>tgauthServerUrl</field>
-			<value>https://textgridlab.org/1.0/tgauth/tgextra.php</value>
+			<value>http://textgrid-esx1.gwdg.de/1.0/tgauth/tgextra.php</value>
 			<description>Put in TG-auth instance to use for publishing. Only used
 				in static import (TG-rep) after import.</description>
 		</property>
 		<property>
 			<field>projectId</field>
-			<value>***PLEASE INSERT PROJECT ID HERE***</value>
+			<value>TGPR-305a6a45-4bbc-9053-5c8a-53becb3f4769</value>
+			<!-- kann man im Lab aus der Benutzerverwaltung für das Projekt kopieren -->
 			<description>Put in a valid TextGrid project ID, create TextGrid
 				project first using the TG-lab.</description>
 		</property>
 		<property>
 			<field>rbacSessionId</field>
 			<value>***PLEASE INSERT RBAC SESSION ID HERE***</value>
+			<!-- Im Lab aus Help -> Authentication -->
 			<description>Add a valid RBAC session ID. SID's user must have CREATE
 				right for the given project to ingest into TG-lab, and PUBLISH right
 				to ingest directly into the TG-rep.</description>
