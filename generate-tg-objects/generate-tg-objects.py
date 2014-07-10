@@ -19,17 +19,11 @@ ns = {
     'tns': 'http://textgrid.info/namespaces/metadata/core/2010'
 }
 
-# document -> item (aggregation)
-# document -> item.metadata
-# transcript -> item (xml as is)
-# transcript -> item.metadata
-
 # TODO title or note contains: documentary or textual
 
 def write_file(path, tree):
     if not os.path.isdir(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
-
 
     print 'writing to', path
 
@@ -38,8 +32,16 @@ def write_file(path, tree):
     tree.write(outfile)
     outfile.close()
 
+def append_idno_nodes(idno_nodes, metadata_tree):
+    provided_element = metadata_tree.xpath('//tns:provided', namespaces=ns)[0]
 
-def generate_document_metadata(document_descriptor, document_title):
+    for (type_attr, idno) in idno_nodes:
+            identifier_node = etree.fromstring(
+                '<tns:identifier xmlns:tns="' + ns['tns'] + '" type="' + type_attr + '"/>')
+            identifier_node.text = idno
+            provided_element.append(identifier_node)
+
+def generate_document_metadata(document_descriptor, document_title, idno_nodes):
     document_metadata = etree.parse('xml-templates/document-metadata.xml')
 
     # extract document metadata
@@ -48,6 +50,8 @@ def generate_document_metadata(document_descriptor, document_title):
     
     title_element = document_metadata.xpath('//tns:title', namespaces=ns)[0]
     title_element.text = document_title
+    
+    append_idno_nodes(idno_nodes, document_metadata)
 
     return document_metadata
 
@@ -63,17 +67,22 @@ def generate_document_aggregation(document_descriptor, path_from_document_descri
     document_transcripts_relative_from_xml_dir = [faust_uri[len('faust://xml/'):] for faust_uri in doc_transcript_faust_uris]
     paths_relative_from_document_descriptor = [os.path.join(path_from_document_descriptor_to_xml_dir, path_relative_from_xml_dir) 
                                                for path_relative_from_xml_dir in document_transcripts_relative_from_xml_dir]
-    
+
     document_item = etree.parse('xml-templates/document-item.xml')
+
     for doc_transcript in paths_relative_from_document_descriptor:
         rdf_description = document_item.xpath('//rdf:Description', namespaces=ns)[0]
-        rdf_description.append(etree.fromstring('<aggregates resource="' + doc_transcript + '"/>'))
+
+    rdf_description.append(etree.fromstring('<ore:aggregates xmlns:ore="' + ns['ore'] + '" resource="' + doc_transcript + '"/>'))
     return document_item
 
-def generate_transcript_metadata(transcript, pagenum, document_title):
+def generate_transcript_metadata(transcript, pagenum, document_title, idno_nodes):
     transcript_metadata = etree.parse('xml-templates/transcript-metadata.xml')
     title_element = transcript_metadata.xpath('//tns:title', namespaces=ns)[0]
     title_element.text = document_title + ', Seite ' + str(pagenum)
+
+    append_idno_nodes(idno_nodes, transcript_metadata)
+
     return transcript_metadata
 
 def generate_objects_for_document(document_descriptor_path, xml_dir_path, output_dir_path):
@@ -89,12 +98,13 @@ def generate_objects_for_document(document_descriptor_path, xml_dir_path, output
 
     path_from_document_descriptor_to_xml_dir = os.path.relpath(xml_dir_path, document_descriptor_path)
     document_aggregation = generate_document_aggregation(document_descriptor, path_from_document_descriptor_to_xml_dir)
-    write_file (base_output_path + '.item', document_aggregation)
+    write_file (base_output_path + '.aggregation', document_aggregation)
     
     # generate metadata for the document aggregation item
     document_title = document_descriptor.xpath('/f:archivalDocument/f:metadata/f:idno', namespaces=ns)[0].text
-    document_metadata = generate_document_metadata(document_descriptor, document_title)
-    write_file (base_output_path + '.metadata', document_metadata)
+    idno_nodes = [(node.get('type'), node.text) for node in document_descriptor.xpath('/f:archivalDocument/f:metadata/f:idno', namespaces=ns)]
+    document_metadata = generate_document_metadata(document_descriptor, document_title, idno_nodes)
+    write_file (base_output_path + '.aggregation.meta', document_metadata)
 
     # generate metadata for transcripts
     document_transcript_uris = document_transcript_faust_uris(document_descriptor)
@@ -103,10 +113,10 @@ def generate_objects_for_document(document_descriptor_path, xml_dir_path, output
     for (pagenum, document_transcript_relative_from_xml_dir) in enumerate(document_transcripts_relative_from_xml_dir, start=1):
             document_transcript_absolute_path = os.path.join(xml_dir_path, document_transcript_relative_from_xml_dir)
             document_transcript_output_path = os.path.join(output_dir_path, document_transcript_relative_from_xml_dir)
-            transcript_metadata_output_path = document_transcript_output_path + '.metadata'
+            transcript_metadata_output_path = document_transcript_output_path + '.meta'
             print 'generating metadata for transcript in', transcript_metadata_output_path            
             transcript = etree.parse(document_transcript_absolute_path)
-            transcript_metadata = generate_transcript_metadata(transcript, pagenum, document_title)
+            transcript_metadata = generate_transcript_metadata(transcript, pagenum, document_title, idno_nodes)
             write_file (transcript_metadata_output_path, transcript_metadata)
 
 def generate_textgrid_objects (xml_dir_path, output_dir_path):

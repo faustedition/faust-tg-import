@@ -6,10 +6,10 @@
     <tns:generic>
         <tns:provided>
             <tns:title></tns:title>
-            <tns:format>text/tg.collection+tg.aggregation+xml</tns:format>
+            <tns:format>tg.aggregation+xml</tns:format>
         </tns:provided>
     </tns:generic>
-    <tns:collection>
-        <tns:collector>Faustedition</tns:collector>
-    </tns:collection>
+    <tns:item>
+        <tns:rightsHolder>Faustedition</tns:rightsHolder>
+    </tns:item>    
 </tns:object>
