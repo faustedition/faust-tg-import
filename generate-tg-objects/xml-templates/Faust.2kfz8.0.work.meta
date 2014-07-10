@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><object xmlns="http://textgrid.info/namespaces/metadata/core/2010" xmlns:tg="http://textgrid.info/relation-ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <generic>
+        <provided>
+            <title>Faust</title>
+            <identifier type="ISBN"></identifier>
+            <format>text/tg.work+xml</format>
+            <notes></notes>
+        </provided>
+        <generated>
+            <created>2014-07-10T18:04:29.350+02:00</created>
+            <lastModified>2014-07-10T18:04:29.350+02:00</lastModified>
+            <textgridUri extRef="">textgrid:2kfz8.0</textgridUri>
+            <revision>0</revision>
+            <extent>11</extent>
+            <dataContributor>tvitt@textgrid.de</dataContributor>
+            <project id="TGPR-319d599d-525a-9f04-ba02-b5fb241b36a8">Thorstens Spielwiese</project>
+            <permissions>delegate publish delete read write</permissions>
+        </generated>
+    </generic>
+    <work>
+        <agent id="pnd:118540238" role="author">Goethe, Johann Wolfgang von</agent>
+        <dateOfCreation notBefore="1749" notAfter="1832"></dateOfCreation>
+        <genre>drama</genre>
+    </work>
+    <custom>
+        <cns:templateEditor xmlns:ns2="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ns4="http://textgrid.info/namespaces/middleware/tgcrud/services/TGCrudService" xmlns:ns3="http://textgrid.info/namespaces/metadata/core/2010" xmlns:cns="http://textgrid.info/custom-namespace/2009-01-01"></cns:templateEditor>
+    </custom>
+</object>
