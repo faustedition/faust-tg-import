@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:object xmlns="http://www.tei-c.org/ns/1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tei="http://www.tei-c.org/ns/1.0"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:tns="http://textgrid.info/namespaces/metadata/core/2010">
+    <tns:generic>
+        <tns:provided>
+            <tns:title></tns:title>
+            <tns:format>text/tg.collection+tg.aggregation+xml</tns:format>
+        </tns:provided>
+    </tns:generic>
+    <tns:collection>
+        <tns:collector>Faustedition</tns:collector>
+    </tns:collection>
+</tns:object>
