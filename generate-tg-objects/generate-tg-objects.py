@@ -42,7 +42,7 @@ def append_idno_nodes(idno_nodes, metadata_tree):
             provided_element.append(identifier_node)
 
 def generate_document_metadata(document_descriptor, document_title, idno_nodes):
-    document_metadata = etree.parse('xml-templates/document-metadata.xml')
+    document_metadata = etree.parse('xml-templates/document.aggregation.meta')
 
     # extract document metadata
     format = 'application/tei+xml'
@@ -68,16 +68,16 @@ def generate_document_aggregation(document_descriptor, path_from_document_descri
     paths_relative_from_document_descriptor = [os.path.join(path_from_document_descriptor_to_xml_dir, path_relative_from_xml_dir) 
                                                for path_relative_from_xml_dir in document_transcripts_relative_from_xml_dir]
 
-    document_item = etree.parse('xml-templates/document-item.xml')
+    document_item = etree.parse('xml-templates/document.aggregation')
 
     for doc_transcript in paths_relative_from_document_descriptor:
         rdf_description = document_item.xpath('//rdf:Description', namespaces=ns)[0]
 
-    rdf_description.append(etree.fromstring('<ore:aggregates xmlns:ore="' + ns['ore'] + '" resource="' + doc_transcript + '"/>'))
+        rdf_description.append(etree.fromstring('<ore:aggregates xmlns:ore="' + ns['ore'] + '" resource="' + doc_transcript + '"/>'))
     return document_item
 
 def generate_transcript_metadata(transcript, pagenum, document_title, idno_nodes):
-    transcript_metadata = etree.parse('xml-templates/transcript-metadata.xml')
+    transcript_metadata = etree.parse('xml-templates/transcript.meta')
     title_element = transcript_metadata.xpath('//tns:title', namespaces=ns)[0]
     title_element.text = document_title + ', Seite ' + str(pagenum)
 
@@ -98,7 +98,8 @@ def generate_objects_for_document(document_descriptor_path, xml_dir_path, output
 
     path_from_document_descriptor_to_xml_dir = os.path.relpath(xml_dir_path, document_descriptor_path)
     document_aggregation = generate_document_aggregation(document_descriptor, path_from_document_descriptor_to_xml_dir)
-    write_file (base_output_path + '.aggregation', document_aggregation)
+    document_out_path = base_output_path + '.aggregation'
+    write_file (document_out_path, document_aggregation)
     
     # generate metadata for the document aggregation item
     document_title = document_descriptor.xpath('/f:archivalDocument/f:metadata/f:idno', namespaces=ns)[0].text
@@ -118,19 +119,50 @@ def generate_objects_for_document(document_descriptor_path, xml_dir_path, output
             transcript = etree.parse(document_transcript_absolute_path)
             transcript_metadata = generate_transcript_metadata(transcript, pagenum, document_title, idno_nodes)
             write_file (transcript_metadata_output_path, transcript_metadata)
+    
+    return document_out_path
+
+def generate_edition(document_out_paths):
+    edition = etree.parse('xml-templates/faustedition.edition')
+    rdf_description = edition.xpath('//rdf:Description', namespaces=ns)[0]
+    for document_out_path in document_out_paths:
+            rdf_description.append(etree.fromstring('<ore:aggregates xmlns:ore="' + ns['ore'] + '" resource="' + document_out_path + '"/>'))
+    return edition
 
 def generate_textgrid_objects (xml_dir_path, output_dir_path):
+
+    # copy all transcripts
 
     transcripts_dir_path = os.path.join(xml_dir_path, 'transcript')
     transcripts_destination_dir_path = os.path.join(output_dir_path, 'transcript')
     print '==== copying all transcripts to', transcripts_destination_dir_path, '===='
     shutil.copytree(transcripts_dir_path, transcripts_destination_dir_path)
+
+    # copy faust work, faust work metadata, edition metadata
+
+    shutil.copy('xml-templates/faust.work', output_dir_path)
+    shutil.copy('xml-templates/faust.work.meta', output_dir_path)
+    shutil.copy('xml-templates/faustedition.edition.meta', output_dir_path)
+
+    # iterate over all documents
+
     documents_dir_path = os.path.join(xml_dir_path, 'document')
+    document_out_paths = []
     for dirpath, dnames, fnames in os.walk(documents_dir_path):
         for document_descriptor_fname in fnames:
             document_descriptor_path = os.path.join(dirpath, document_descriptor_fname)
-            generate_objects_for_document(document_descriptor_path, xml_dir_path, output_dir_path)
 
+            # print relative_document_descriptor_path
+
+            document_out_path = generate_objects_for_document(document_descriptor_path, xml_dir_path, output_dir_path)
+            relative_document_out_path = os.path.relpath(document_out_path, output_dir_path )
+            document_out_paths.append(relative_document_out_path)
+          
+    # edition aggregates all documents
+
+    edition = generate_edition(document_out_paths)
+    write_file(os.path.join(output_dir_path, 'faustedition.edition'), edition)
+    
 if len(sys.argv) != 3:
     print
     print 'wrong number of arguments.'

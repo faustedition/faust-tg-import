@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object xmlns="http://textgrid.info/namespaces/metadata/core/2010"
+    xmlns:tg="http://textgrid.info/relation-ns#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <generic>
+        <provided>
+            <title>Historisch-kritische Edition von Goethes Faust</title>
+            <format>text/tg.edition+tg.aggregation+xml</format>
+            <notes/>
+        </provided>
+    </generic>
+    <edition>
+        <isEditionOf>faust.work</isEditionOf>
+        <agent id="pnd:111634458" role="editor">Bohnenkamp-Renken, Anne</agent>
+        <agent id="pnd:112718949" role="editor">Henke, Silke</agent>
+        <agent id="pnd:114523525" role="editor">Jannidis, Fotis</agent>
+        <formOfNotation>Latn</formOfNotation>
+        <language>deu</language>
+        <license licenseUri="http://creativecommons.org/licenses/by-nc-sa/3.0/"
+            >CC-BY-NC-SA</license>
+    </edition>
+</object>

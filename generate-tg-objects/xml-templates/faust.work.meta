@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object xmlns="http://textgrid.info/namespaces/metadata/core/2010"
+    xmlns:tg="http://textgrid.info/relation-ns#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <generic>
+        <provided>
+            <title>Faust</title>
+            <format>text/tg.work+xml</format>
+            <notes/>
+        </provided>
+    </generic>
+    <work>
+        <agent id="pnd:118540238" role="author">Goethe, Johann Wolfgang von</agent>
+        <dateOfCreation notBefore="1749" notAfter="1832"/>
+        <genre>drama</genre>
+    </work>
+</object>
