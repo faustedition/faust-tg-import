@@ -6,6 +6,7 @@
 from lxml import etree
 import sys
 import os.path
+import shutil
 
 ns = {
     'tei': 'http://www.tei-c.org/ns/1.0',
@@ -29,59 +30,91 @@ def write_file(path, tree):
     if not os.path.isdir(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
 
-    print
+
     print 'writing to', path
-    print
-    tree.write(sys.stdout)
+
+    # tree.write(sys.stdout)
     outfile = open(path, 'w')
     tree.write(outfile)
     outfile.close()
-    print
 
-def generate_document_metadata(document_descriptor):
+
+def generate_document_metadata(document_descriptor, document_title):
     document_metadata = etree.parse('xml-templates/document-metadata.xml')
 
     # extract document metadata
-    title = document_descriptor.xpath('/f:archivalDocument/f:metadata/f:idno', namespaces=ns)[0].text
-    identifier = title
     format = 'application/tei+xml'
     notes = 'A manuscript of the Faust Edition. http://faustedition.de'
     
     title_element = document_metadata.xpath('//tns:title', namespaces=ns)[0]
-    title_element.text = title
+    title_element.text = document_title
 
     return document_metadata
 
-def generate_document_aggregation(document_descriptor, xml_base):
-    doc_transcripts = document_descriptor.xpath('//f:docTranscript/@uri', namespaces=ns)
+def document_transcript_faust_uris(document_descriptor):
+    xml_base = document_descriptor.xpath('/f:archivalDocument/@xml:base', namespaces=ns)[0]
+    local_names = document_descriptor.xpath('//f:docTranscript/@uri', namespaces=ns)
+    faust_uris = [os.path.join(xml_base, local_name) for local_name in local_names]
+    return faust_uris
+
+def generate_document_aggregation(document_descriptor, path_from_document_descriptor_to_xml_dir):
+    doc_transcript_faust_uris = document_transcript_faust_uris(document_descriptor)
+
+    document_transcripts_relative_from_xml_dir = [faust_uri[len('faust://xml/'):] for faust_uri in doc_transcript_faust_uris]
+    paths_relative_from_document_descriptor = [os.path.join(path_from_document_descriptor_to_xml_dir, path_relative_from_xml_dir) 
+                                               for path_relative_from_xml_dir in document_transcripts_relative_from_xml_dir]
+    
     document_item = etree.parse('xml-templates/document-item.xml')
-    for doc_transcript in doc_transcripts:
-        full_doc_transcript_path = xml_base + doc_transcript
+    for doc_transcript in paths_relative_from_document_descriptor:
         rdf_description = document_item.xpath('//rdf:Description', namespaces=ns)[0]
-        rdf_description.append(etree.fromstring('<aggregates resource="' + full_doc_transcript_path + '"/>'))
+        rdf_description.append(etree.fromstring('<aggregates resource="' + doc_transcript + '"/>'))
     return document_item
+
+def generate_transcript_metadata(transcript, pagenum, document_title):
+    transcript_metadata = etree.parse('xml-templates/transcript-metadata.xml')
+    title_element = transcript_metadata.xpath('//tns:title', namespaces=ns)[0]
+    title_element.text = document_title + ', Seite ' + str(pagenum)
+    return transcript_metadata
 
 def generate_objects_for_document(document_descriptor_path, xml_dir_path, output_dir_path):
 
-    print
     print '==== handling document', os.path.basename(document_descriptor_path), ' ===='
-    print
 
     document_descriptor = etree.parse(document_descriptor_path)
-    xml_base = document_descriptor.xpath('/f:archivalDocument/@xml:base', namespaces=ns)[0]
+
     relative_base_output_path = os.path.relpath(document_descriptor_path, xml_dir_path)
     base_output_path = os.path.join (output_dir_path, relative_base_output_path)
 
     # generate aggregation as a textgrid item for the document
-    document_aggregation = generate_document_aggregation(document_descriptor, xml_base)
+
+    path_from_document_descriptor_to_xml_dir = os.path.relpath(xml_dir_path, document_descriptor_path)
+    document_aggregation = generate_document_aggregation(document_descriptor, path_from_document_descriptor_to_xml_dir)
     write_file (base_output_path + '.item', document_aggregation)
     
     # generate metadata for the document aggregation item
-    document_metadata = generate_document_metadata(document_descriptor)
+    document_title = document_descriptor.xpath('/f:archivalDocument/f:metadata/f:idno', namespaces=ns)[0].text
+    document_metadata = generate_document_metadata(document_descriptor, document_title)
     write_file (base_output_path + '.metadata', document_metadata)
 
+    # generate metadata for transcripts
+    document_transcript_uris = document_transcript_faust_uris(document_descriptor)
+    document_transcripts_relative_from_xml_dir = [faust_uri[len('faust://xml/'):] for faust_uri in document_transcript_uris]
+
+    for (pagenum, document_transcript_relative_from_xml_dir) in enumerate(document_transcripts_relative_from_xml_dir, start=1):
+            document_transcript_absolute_path = os.path.join(xml_dir_path, document_transcript_relative_from_xml_dir)
+            document_transcript_output_path = os.path.join(output_dir_path, document_transcript_relative_from_xml_dir)
+            transcript_metadata_output_path = document_transcript_output_path + '.metadata'
+            print 'generating metadata for transcript in', transcript_metadata_output_path            
+            transcript = etree.parse(document_transcript_absolute_path)
+            transcript_metadata = generate_transcript_metadata(transcript, pagenum, document_title)
+            write_file (transcript_metadata_output_path, transcript_metadata)
 
 def generate_textgrid_objects (xml_dir_path, output_dir_path):
+
+    transcripts_dir_path = os.path.join(xml_dir_path, 'transcript')
+    transcripts_destination_dir_path = os.path.join(output_dir_path, 'transcript')
+    print '==== copying all transcripts to', transcripts_destination_dir_path, '===='
+    shutil.copytree(transcripts_dir_path, transcripts_destination_dir_path)
     documents_dir_path = os.path.join(xml_dir_path, 'document')
     for dirpath, dnames, fnames in os.walk(documents_dir_path):
         for document_descriptor_fname in fnames:

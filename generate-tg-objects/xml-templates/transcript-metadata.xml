@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:object 
+    xmlns:tns="http://textgrid.info/namespaces/metadata/core/2010">
+    <tns:generic>
+        <tns:provided>
+            <tns:title></tns:title>
+            <tns:format>text/xml</tns:format>
+        </tns:provided>
+    </tns:generic>
+    <tns:item>
+        <tns:rightsHolder>Faustedition</tns:rightsHolder>
+    </tns:item>
+</tns:object>
