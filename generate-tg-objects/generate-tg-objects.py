@@ -39,7 +39,7 @@ def append_idno_nodes(idno_nodes, metadata_tree):
             identifier_node = etree.fromstring(
                 '<tns:identifier xmlns:tns="' + ns['tns'] + '" type="' + type_attr + '"/>')
             identifier_node.text = idno
-            provided_element.append(identifier_node)
+            provided_element.insert(len(provided_element) - 1, identifier_node)
 
 def generate_document_metadata(document_descriptor, document_title, idno_nodes):
     document_metadata = etree.parse('xml-templates/document.aggregation.meta')
