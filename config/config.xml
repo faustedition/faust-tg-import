@@ -38,7 +38,7 @@
 		</property>
 		<property>
 			<field>tgcrudServerUrl</field>
-			<value>http://textgrid-esx1.gwdg.de/1.0/tgcrud/TGCrudService?wsdl</value>
+			<value>http://textgrid-esx1.gwdg.de/1.0/tgcrud-public/TGCrudService?wsdl</value>
 			<description>Put in TG-crud instance to use for import. Specifies, if
 				dynamic import (TG-lab) or static import (TG-rep sandbox), and of
 				course if productive or test instance of TG-crud is used.</description>
