@@ -6,7 +6,7 @@
     <tns:generic>
         <tns:provided>
             <tns:title></tns:title>
-            <tns:format>tg.aggregation+xml</tns:format>
+            <tns:format>text/tg.aggregation+xml</tns:format>
         </tns:provided>
     </tns:generic>
     <tns:item>
