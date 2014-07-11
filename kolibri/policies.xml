@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<policies xmlns="koLibRI-policies" xmlns:koLibRI="koLibRI-policies"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="koLibRI-policies http://kopal.langzeitarchivierung.de/schema/koLibRI/policies.xsd">
+
+	<!-- IMPORTS using the hotfolder, and takes the (and only one!) underlying 
+		folder to import as a TextGrid aggregation, subfolders will also become aggregations, 
+		takes filenames as title -->
+	<policy name="aggregation_import">
+		<!-- Copies files to temp dir -->
+		<step class="FileCopyBase">
+			<!-- Gets a TextGrid URI for each file (and folder if configured so) from 
+				TG-crud -->
+			<step class="textgrid.GetUris">
+				<config>
+					<property>
+						<field>urisForFolders</field>
+						<value>TRUE</value>
+						<description>URIs will be created for folders, too. We need them for aggregation files.</description>
+					</property>
+				</config>
+				<!-- Needed for format identification and (if configured) for technical 
+					metadata creation -->
+				<step class="MetadataGenerator">
+					<!-- Creates TextGrid metadata from title and format, adds technical 
+						metadata -->
+					<step class="textgrid.TextgridMetadataProcessor">
+						<!-- Creates aggregation files, at first using filenames -->
+						<step class="textgrid.CreateAggregations">
+							<!-- Renames all files, maps aggregatons to TextGrid URIs -->
+							<step class="textgrid.RenameAndRewrite">
+								<!-- Fetches PIDs and adds metadata information -->
+								<step class="textgrid.GetPidsAndRewrite">
+									<!-- Submits all the files to TG-crud -->
+									<step class="textgrid.SubmitFiles" />
+								</step>
+							</step>
+						</step>
+					</step>
+				</step>
+			</step>
+		</step>
+	</policy>
+
+	<!-- Imports TextGrid objects INCLUDING EXISTING METADATA -->
+	<policy name="complete_import">
+		<!-- Copies files to temp dir -->
+		<step class="FileCopyBase">
+			<!-- Gets a TextGrid URI for each file from TG-crud -->
+			<step class="textgrid.GetUris">
+				<config>
+					<property>
+						<field>urisForFolders</field>
+						<value>FALSE</value>
+						<description>No URIs will be created for folders. We already have the aggregation files.</description>
+					</property>
+				</config>
+				<!-- Renames all files, maps to TextGrid URIs -->
+				<step class="textgrid.RenameAndRewrite">
+					<!-- Fetches PIDs and adds metadata information -->
+					<step class="textgrid.GetPidsAndRewrite">
+						<!-- Submits all the files to TG-crud -->
+						<step class="textgrid.SubmitFiles" />
+					</step>
+				</step>
+			</step>
+		</step>
+	</policy>
+
+	<!-- Imports objects described by the DFG VIEWER METS specification -->
+	<policy name="dfgviewermets_import">
+		<!-- Copies files to temp dir -->
+		<step class="FileCopyBase">
+			<!-- Processes the DFG Viewer METS file: Creates a folder structure from 
+				the structmap logical and physical DIVs, downloads files, and gets IDs and 
+				TYPEs as filenames for the data files (can be overwritten by the DfgViewerMetadataProcessor 
+				via XSLT stylesheets) -->
+			<step class="textgrid.ProcessDfgViewerMets">
+				<!-- Gets a TextGrid URI for each file (and folder if configured so) 
+					from TG-crud -->
+				<step class="textgrid.GetUris">
+					<config>
+						<property>
+							<field>urisForFolders</field>
+							<value>TRUE</value>
+							<description>URIs will be created for folders, too. We need them for aggregation files.</description>
+						</property>
+					</config>
+					<!-- Needed for format identification and (if configured) for technical 
+						metadata creation -->
+					<step class="MetadataGenerator">
+						<!-- Creates TextGrid metadata from title and format, adds technical 
+							metadata -->
+						<step class="textgrid.TextgridMetadataProcessor">
+							<!-- Takes the generated metadata files and adds any additional metadata 
+								coming from the DFG Viewer METS file, cares about WORKs, EDITIONs, AGGREGATIONs, 
+								ITEMs, and COLLECTIONs -->
+							<step class="textgrid.DfgViewerMetadataProcessor">
+								<!-- Creates aggregation files, at first using filenames -->
+								<step class="textgrid.CreateAggregations">
+									<!-- Renames all files, maps aggregations to TextGrid URIs -->
+									<step class="textgrid.RenameAndRewrite">
+										<!-- Fetches PIDs and adds metadata information -->
+										<step class="textgrid.GetPidsAndRewrite">
+											<!-- Rewrite the METS file's item URLs to resolveable PIDs or 
+												TextGrid URIs -->
+											<step class="textgrid.RewriteDfgViewerUrls">
+												<!-- Submits all the files to TG-crud -->
+												<step class="textgrid.SubmitFiles" />
+											</step>
+										</step>
+									</step>
+								</step>
+							</step>
+						</step>
+					</step>
+				</step>
+			</step>
+		</step>
+	</policy>
+	
+	<!-- Imports objects described by the TEI P5 specification -->
+	<policy name="tei_import">
+		<!-- Copies files to temp dir -->
+		<step class="textgrid.FileCopyBase">
+			<!-- TODO: doc -->
+			<step class="textgrid.PrepareTeiImport">
+				<!-- Gets a TextGrid URI for each file (and folder if configured so) 
+					from TG-crud -->
+				<step class="textgrid.GetUris">
+					<config>
+						<property>
+							<field>urisForFolders</field>
+							<value>TRUE</value>
+							<description>URIs will be created for folders, too. We need them for aggregation files.</description>
+						</property>
+					</config>
+					<!-- Needed for format identification and (if configured) for technical 
+						metadata creation -->
+					<step class="MetadataGenerator">
+						<!-- Creates TextGrid metadata from title and format, adds technical 
+							metadata -->
+						<step class="textgrid.TextgridMetadataProcessor">
+							<!-- Takes the generated metadata files and adds any additional metadata 
+								coming from the DFG Viewer METS file, cares about WORKs, EDITIONs, AGGREGATIONs, 
+								ITEMs, and COLLECTIONs -->
+							<step class="textgrid.TeiHeaderMetadataProcessor">
+								<!-- Creates aggregation files, at first using filenames -->
+								<step class="textgrid.CreateAggregations">
+									<!-- Renames all files, maps aggregations to TextGrid URIs -->
+									<step class="textgrid.RenameAndRewrite">
+										<!-- Fetches PIDs and adds metadata information -->
+										<!-- step class="textgrid.GetPidsAndRewrite" -->
+												<!-- Submits all the files to TG-crud -->
+												<step class="textgrid.SubmitFiles" />
+										<!-- /step -->
+									</step>
+								</step>
+							</step>
+						</step>
+					</step>
+				</step>
+			</step>
+		</step>
+	</policy>	
+
+	<!-- Just COMMITS all files that have not been ingested before -->
+	<!-- PLEASE NOTE: DO NOT FORGET TO SET THE HOTFOLDER TO THE TEMP FOLDER 
+		WHERE ALL THE FILES ARE! -->
+	<policy name="continue_import">
+		<!-- Just submits all the files to TG-crud -->
+		<step class="textgrid.SubmitFiles" />
+	</policy>
+
+	<!-- DELETES all files that have been ingested before -->
+	<policy name="delete_import">
+		<!-- Just deletes all the files via TG-crud -->
+		<step class="textgrid.DeleteFiles" />
+	</policy>
+
+	<!-- REALLY publishes all files that have been ingested before to a public 
+		TG-crud -->
+	<policy name="publish_import">
+		<!-- Publishes all the files that were nearlyPublished only -->
+		<step class="textgrid.PublishFiles" />
+	</policy>
+
+</policies>
