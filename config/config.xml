@@ -236,7 +236,7 @@
 			<!-- Commonly defined values: defaultPolicyName, hotfolderDir -->
 			<property>
 				<field>readDirectoriesOnly</field>
-				<value>FALSE</value>
+				<value>TRUE</value>
 			</property>
 			<property>
 				<field>recheckHotfolder</field>
@@ -446,6 +446,7 @@
 				<value>http://</value>
 				<value>www.</value>
 				<value>file://</value>
+				<value>faust://</value>
 				<value>./</value>
 				<description>URLs with this prefixes are ignored during URL
 					rewriting.</description>
