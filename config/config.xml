@@ -457,12 +457,12 @@
 				logParameter -->
 			<property>
 				<field>getPids</field>
-				<value>FALSE</value>
+				<value>TRUE</value>
 				<description>PIDs are created for every TextGrid object.</description>
 			</property>
 			<property>
 				<field>tgpidServerUrl</field>
-				<value>http://textgridlab.org/1.0/tgpid/</value>
+				<value>http://textgrid-esx1.gwdg.de/1.0/tgpid/</value>
 			</property>
 			<property>
 				<field>amountOfPidsAtOnce</field>
@@ -475,7 +475,7 @@
 			</property>
 			<property>
 				<field>pidResolverPrefix</field>
-				<value>http://textgridrep.org/</value>
+				<value>http://textgrid-esx1.gwdg.de/</value>
 				<description>The prefix to use if adding URIs to the Handle Servcie
 					to be able to resolve the PID lateron.</description>
 			</property>
