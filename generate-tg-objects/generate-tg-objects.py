@@ -73,7 +73,7 @@ def generate_document_aggregation(document_descriptor, path_from_document_descri
     for doc_transcript in paths_relative_from_document_descriptor:
         rdf_description = document_item.xpath('//rdf:Description', namespaces=ns)[0]
 
-        rdf_description.append(etree.fromstring('<ore:aggregates xmlns:ore="' + ns['ore'] + '" resource="' + doc_transcript + '"/>'))
+        rdf_description.append(etree.fromstring('<ore:aggregates xmlns:ore="' + ns['ore'] + '" xmlns:rdf="'+ ns['rdf'] +'" rdf:resource="' + doc_transcript + '"/>'))
     return document_item
 
 def generate_transcript_metadata(transcript, pagenum, document_title, idno_nodes):
@@ -126,7 +126,7 @@ def generate_edition(document_out_paths):
     edition = etree.parse('xml-templates/faustedition.edition')
     rdf_description = edition.xpath('//rdf:Description', namespaces=ns)[0]
     for document_out_path in document_out_paths:
-            rdf_description.append(etree.fromstring('<ore:aggregates xmlns:ore="' + ns['ore'] + '" resource="' + document_out_path + '"/>'))
+        rdf_description.append(etree.fromstring('<ore:aggregates xmlns:ore="' + ns['ore'] + '" xmlns:rdf="' + ns['rdf'] + '" rdf:resource="' + document_out_path + '"/>'))
     return edition
 
 def generate_textgrid_objects (xml_dir_path, output_dir_path):
